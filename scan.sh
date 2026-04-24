@@ -73,6 +73,27 @@ if [ $? -eq 0 ] && [ -f "$FILENAME" ]; then
     echo "✅ Successfully saved: $FILENAME"
     # Show a notification if notify-send is available
     command -v notify-send >/dev/null && notify-send "Scan Complete" "Saved to $FILENAME" -i scanner
+
+    # Post-scan Actions
+    while true; do
+        ACTION=$(echo -e "👁 View File\n✉ Email File (Thunderbird)\n📂 Open Folder\n🚪 Exit" | fzf --height 40% --layout=reverse --prompt="⏭ Next Action: ")
+        
+        case "$ACTION" in
+            "👁 View File")
+                xdg-open "$FILENAME"
+                ;;
+            "✉ Email File (Thunderbird)")
+                echo "📨 Opening Thunderbird..."
+                thunderbird -compose "attachment='file://$FILENAME'"
+                ;;
+            "📂 Open Folder")
+                xdg-open "$DEST_DIR"
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
 else
     echo "❌ Scan failed. Check if scanner is busy, offline, or out of paper."
     exit 1
